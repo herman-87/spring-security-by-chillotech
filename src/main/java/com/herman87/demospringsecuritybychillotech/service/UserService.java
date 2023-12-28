@@ -6,17 +6,20 @@ import com.herman87.demospringsecuritybychillotech.domain.Validation;
 import com.herman87.demospringsecuritybychillotech.repository.UserRepository;
 import com.herman87.demospringsecuritybychillotech.repository.ValidationRepository;
 import jakarta.transaction.Transactional;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.NotFound;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
-import java.util.Map;
-
+@NoArgsConstructor(force = true)
+@Builder
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -38,5 +41,10 @@ public class UserService {
                 .findByIdAndOtpCode(validationData.getUserId(), validationData.getOtpCode())
                 .orElseThrow(() -> new Error("Validation Not Found"));
         userRepository.save(validation.getUser().activate());
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return null;
     }
 }
