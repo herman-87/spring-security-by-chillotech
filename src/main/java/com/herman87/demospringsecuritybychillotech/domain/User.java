@@ -79,4 +79,10 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return isActivate;
     }
+
+    public User activate() {
+        this.isActivate = true;
+        this.role = new Role(1, RoleName.USER);
+        return this;
+    }
 }
