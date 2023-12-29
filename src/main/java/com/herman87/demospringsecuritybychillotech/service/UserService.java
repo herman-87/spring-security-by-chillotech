@@ -1,22 +1,22 @@
 package com.herman87.demospringsecuritybychillotech.service;
 
-import com.herman87.demospringsecuritybychillotech.DTO.ValidationData;
+import com.herman87.demospringsecuritybychillotech.DTO.ValidationDTO;
 import com.herman87.demospringsecuritybychillotech.domain.User;
 import com.herman87.demospringsecuritybychillotech.domain.Validation;
 import com.herman87.demospringsecuritybychillotech.repository.UserRepository;
 import com.herman87.demospringsecuritybychillotech.repository.ValidationRepository;
 import jakarta.transaction.Transactional;
-import lombok.Builder;
+import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@NoArgsConstructor(force = true)
-@Builder
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
@@ -35,16 +35,19 @@ public class UserService implements UserDetailsService {
         return createdUser.getId();
     }
 
-    public void activateUser(ValidationData validationData) {
+    public void activateUser(ValidationDTO validationData) {
 
         Validation validation = validationRepository
-                .findByIdAndOtpCode(validationData.getUserId(), validationData.getOtpCode())
+                .findByIdAndOtpCode(validationData.userId(), validationData.otpCode())
                 .orElseThrow(() -> new Error("Validation Not Found"));
         userRepository.save(validation.getUser().activate());
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return null;
+        User userNotFound = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("user not found"));
+        log.info("inside userService {} {}", userNotFound.getUsername(), userNotFound.getPassword());
+
+        return userNotFound;
     }
 }

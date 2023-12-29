@@ -12,7 +12,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -31,6 +30,7 @@ public class SecurityConfig {
                                 request
                                         .requestMatchers(HttpMethod.POST, "/signup").permitAll()
                                         .requestMatchers(HttpMethod.POST, "/activate/user").permitAll()
+                                        .requestMatchers(HttpMethod.POST, "/sign-in").permitAll()
                                         .anyRequest()
                                         .authenticated()
                 ).build();
@@ -52,17 +52,11 @@ public class SecurityConfig {
     }
 
     @Bean
-    public UserDetailsService userDetailsService() {
-        return new UserService();
-    }
+    public AuthenticationProvider authenticationProvider(UserService userService) {
 
-    @Bean
-    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(this.userDetailsService());
+        authenticationProvider.setUserDetailsService(userService);
         authenticationProvider.setPasswordEncoder(this.passwordEncoder());
-
-
         return authenticationProvider;
     }
 }
